@@ -1,0 +1,40 @@
+name: Uc Minik Bir Macera Pilot
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: uc-minik-pilot
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Araclari kur
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg espeak-ng fonts-dejavu-core
+          python -m pip install Pillow==11.3.0
+
+      - name: Sesli pilotu uret
+        run: python render.py
+
+      - name: Videoyu kaydet
+        uses: actions/upload-artifact@v4
+        with:
+          name: uc-minik-pilot
+          path: output/pilot.mp4
+          retention-days: 1
+          if-no-files-found: error
