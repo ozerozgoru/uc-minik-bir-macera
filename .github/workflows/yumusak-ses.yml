@@ -1,0 +1,54 @@
+name: Yumusak Turkce Ses
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  voice:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Ses araclarini kur
+        run: |
+          python -m pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install ema-lightning
+
+      - name: Iki ses ornegi uret
+        run: |
+          mkdir -p output
+          python - <<'PY'
+          from ema_lightning import EMA
+
+          tts = EMA()
+          metin = (
+              "Merhaba minik dostum! "
+              "Bugün Mino, Tosi ve Piko ile güzel bir maceraya çıkıyoruz. "
+              "Mino, çiçeklerin arasında küçük bir kelebek gördü. "
+              "Kelebek önce sarı çiçeğe, sonra kırmızı çiçeğe kondu. "
+              "Haydi, renkleri birlikte keşfedelim!"
+          )
+
+          tts.say(
+              metin, speed=1.0, seed=0,
+              path="output/1-normal.wav"
+          )
+          tts.say(
+              metin, speed=0.92, seed=0,
+              path="output/2-sakin.wav"
+          )
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yumusak-ses-ornekleri
+          path: output/*.wav
+          retention-days: 1
+          if-no-files-found: error
