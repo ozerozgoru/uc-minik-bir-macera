@@ -1,4 +1,4 @@
-name: Uc Minik Bir Macera Pilot V2
+name: Uc Minik Bir Macera Pilot V3
 on:
   workflow_dispatch:
 permissions:
@@ -21,11 +21,11 @@ jobs:
           sudo apt-get install -y ffmpeg fonts-dejavu-core
           python -m pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
           python -m pip install ema-lightning Pillow==11.3.0
-      - name: Uc sahneli pilotu uret
+      - name: Pilot uret
         run: python render.py
       - uses: actions/upload-artifact@v4
         with:
-          name: uc-minik-pilot-v2
+          name: uc-minik-pilot-v3
           path: |
             output/pilot.mp4
             output/preview.jpg
