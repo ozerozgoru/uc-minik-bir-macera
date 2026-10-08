@@ -12,25 +12,37 @@ for left,right,h in [(0,700,390),(700,1245,310),(1245,sheet.width,285)]:
  s=s.crop(b); s.thumbnail((390,h),Image.Resampling.LANCZOS); sprites.append(s)
 font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',38)
 
+BACKGROUND=Image.open(R/'assets/forest.png').convert('RGB').resize((1280,720),Image.Resampling.LANCZOS)
+
 def draw(i,t):
- im=Image.new('RGB',(1280,720),['#bceaf8','#c9edf3','#fce9bc'][i]); d=ImageDraw.Draw(im)
- d.ellipse((1020,35,1130,145),fill='#ffda72')
- d.ellipse((-300,390,950,1050),fill='#abd38b'); d.ellipse((650,380,1540,1050),fill='#98c77c')
- for x in ([970] if i==0 else [40,1010] if i==1 else [1090]):
-  d.rectangle((x,245,x+45,570),fill='#b48864'); d.ellipse((x-100,120,x+145,360),fill='#6cb77c')
- if i==1:
-  for x in [70,160,230,1110,1180]:
-   d.line((x,610,x,665),fill='#548c4d',width=6); d.ellipse((x-16,590,x+16,622),fill='#ffdc65')
+ im=BACKGROUND.copy(); d=ImageDraw.Draw(im)
  poses=[[160,510,850],[80,440,750],[150,500,880]][i]
- for j,s in enumerate(sprites):
-  x=poses[j]; y=675-s.height+int(4*math.sin(t*2+j))
-  if i==1 and j==2: x+=int(55*math.sin(t*.45)); y-=int(20+12*math.sin(t*2))
-  im.paste(s,(x,y),s)
- d=ImageDraw.Draw(im)
+ for j,sprite in enumerate(sprites):
+  x=poses[j]; y=650-sprite.height+int(3*math.sin(t*2+j))
+  if i==1:
+   x+=int(min(t/7,1)*90)
+   if j==2: y-=int(30+12*math.sin(t*2))
+  if i==2: x+=int(10*math.sin(t*.8+j))
+  # Small ground shadow supports visual contact with the illustrated ground.
+  d.ellipse((x+sprite.width*.2,642,x+sprite.width*.8,656),fill='#65844b')
+  im.paste(sprite,(x,y),sprite)
  bx=1100 if i<2 else int(420+400*(.5+.5*math.sin(t*.8)))
+ d=ImageDraw.Draw(im)
  d.ellipse((bx-28,602,bx+28,658),fill='#ed6871',outline='#b74b54',width=4)
- d.rounded_rectangle((30,25,850,98),radius=22,fill='white'); d.text((52,39),scenes[i][0],font=font,fill='#415d66')
+ d.arc((bx-23,607,bx+23,653),200,285,fill='#ffb5b7',width=5)
+ # Alternating wide and medium views every five seconds. Ease camera position.
+ shot=int(t/5)%3
+ if shot:
+  width=950 if shot==1 else 1050; height=int(width*720/1280)
+  cx=(400 if i==0 else 950 if i==1 else 700)+12*math.sin(t*.3)
+  left=max(0,min(1280-width,int(cx-width/2)))
+  top=min(720-height,max(0,int(450-height/2)))
+  im=im.crop((left,top,left+width,top+height)).resize((1280,720),Image.Resampling.BICUBIC)
+ d=ImageDraw.Draw(im)
+ d.rounded_rectangle((30,25,850,98),radius=22,fill='#fff9eb')
+ d.text((52,39),scenes[i][0],font=font,fill='#415d66')
  return im
+
 if not a.silent_test:
  from ema_lightning import EMA
  tts=EMA()
