@@ -1,4 +1,4 @@
-name: Uc Minik Bir Macera Pilot V3
+name: Uc Minik Bir Macera Pilot V4
 on:
   workflow_dispatch:
 permissions:
@@ -25,7 +25,7 @@ jobs:
         run: python render.py
       - uses: actions/upload-artifact@v4
         with:
-          name: uc-minik-pilot-v3
+          name: uc-minik-pilot-v4
           path: |
             output/pilot.mp4
             output/preview.jpg
